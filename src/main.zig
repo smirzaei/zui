@@ -1,24 +1,33 @@
 const std = @import("std");
+const gtk = @cImport({
+    @cInclude("gtk/gtk.h");
+});
 
-pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
+    _ = data;
+    std.debug.print("on_activate\n", .{});
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
-
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
-
-    try bw.flush(); // don't forget to flush!
+    const window = gtk.gtk_application_window_new(app);
+    gtk.gtk_window_set_title(@ptrCast(window), "Hello, Gtk4!");
+    gtk.gtk_window_set_default_size(@ptrCast(window), 800, 600);
+    gtk.gtk_window_present(@ptrCast(window));
 }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+pub fn main() !void {
+    std.debug.print("starting the application\n", .{});
+
+    std.debug.print("init gtk\n", .{});
+    // https://docs.gtk.org/gtk4/ctor.Application.new.html
+    // https://developer.gnome.org/documentation/tutorials/application-id.html
+    const app = gtk.gtk_application_new("codes.soroush.zone", gtk.G_APPLICATION_DEFAULT_FLAGS);
+    defer gtk.g_object_unref(app);
+
+    // https://docs.gtk.org/gobject/func.signal_connect_data.html
+    _ = gtk.g_signal_connect_data(app, "activate", @ptrCast(&on_activate), null, null, gtk.G_CONNECT_DEFAULT);
+
+    // When you close the window, by (for example) pressing the X button,
+    // the g_application_run() call returns with a number which is saved inside
+    // an integer variable named status.
+    const status = gtk.g_application_run(@ptrCast(app), 0, null);
+    std.debug.print("status: {d}\n", .{status});
 }
