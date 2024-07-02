@@ -17,7 +17,7 @@ fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
     const html =
         \\<!DOCTYPE html>
         \\  <html>
-        \\    <body>
+        \\    <body style="width: 100vw; height: 100vh;">
         \\      <h1>Hello, World!</h1>
         \\    </body>
         \\  </html>
@@ -29,6 +29,11 @@ fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
     gtk.g_object_set(@ptrCast(settings), "enable-developer-extras", true, @as([*c]const u8, null));
 
     gtk.gtk_window_set_child(@ptrCast(window), webview);
+
+    // Make sure the webview uses all available space
+    gtk.gtk_widget_set_hexpand(@ptrCast(webview), @as(c_int, 1));
+    gtk.gtk_widget_set_vexpand(@ptrCast(webview), @as(c_int, 1));
+
     gtk.gtk_window_present(@ptrCast(window));
 }
 
