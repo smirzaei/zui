@@ -13,9 +13,7 @@ fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
     gtk.gtk_window_set_title(@ptrCast(window), "Hello, Gtk4!");
     gtk.gtk_window_set_default_size(@ptrCast(window), 800, 600);
 
-    // Create webview
     const webview = gtk.webkit_web_view_new();
-
     const html =
         \\<!DOCTYPE html>
         \\  <html>
@@ -25,6 +23,10 @@ fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
         \\  </html>
     ;
     gtk.webkit_web_view_load_html(@ptrCast(webview), html, null);
+
+    // Enable dev tools
+    const settings = gtk.webkit_web_view_get_settings(@ptrCast(webview));
+    gtk.g_object_set(@ptrCast(settings), "enable-developer-extras", true, @as([*c]const u8, null));
 
     gtk.gtk_window_set_child(@ptrCast(window), webview);
     gtk.gtk_window_present(@ptrCast(window));
