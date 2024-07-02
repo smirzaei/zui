@@ -1,6 +1,8 @@
 const std = @import("std");
 const gtk = @cImport({
     @cInclude("gtk/gtk.h");
+    // @cInclude("webkit2/webkit2.h");
+    @cInclude("webkit/webkit.h");
 });
 
 fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
@@ -10,10 +12,27 @@ fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
     const window = gtk.gtk_application_window_new(app);
     gtk.gtk_window_set_title(@ptrCast(window), "Hello, Gtk4!");
     gtk.gtk_window_set_default_size(@ptrCast(window), 800, 600);
+
+    // Create webview
+    const webview = gtk.webkit_web_view_new();
+
+    const html =
+        \\<!DOCTYPE html>
+        \\  <html>
+        \\    <body>
+        \\      <h1>Hello, World!</h1>
+        \\    </body>
+        \\  </html>
+    ;
+    gtk.webkit_web_view_load_html(@ptrCast(webview), html, null);
+
+    gtk.gtk_window_set_child(@ptrCast(window), webview);
     gtk.gtk_window_present(@ptrCast(window));
 }
 
 pub fn main() !void {
+    // https://bugs.webkit.org/show_bug.cgi?id=259644
+    // WEBKIT_DISABLE_DMABUF_RENDERER=1
     std.debug.print("starting the application\n", .{});
 
     std.debug.print("init gtk\n", .{});

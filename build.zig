@@ -37,7 +37,23 @@ pub fn build(b: *std.Build) void {
     });
 
     exe.linkSystemLibrary("c");
+
+    // These two are compatible
+    // Make sure to import this instead:
+    //
+    // @cInclude("webkit/webkit.h");
+    //
+    // https://webkitgtk.org/reference/webkit2gtk/2.39.7/migrating-to-webkitgtk-6.0.html
     exe.linkSystemLibrary("gtk4");
+    exe.linkSystemLibrary("webkitgtk-6");
+
+    // These two are compatible
+    // Make sure to import this instead:
+    //
+    // @cInclude("webkit2/webkit2.h");
+    //
+    // exe.linkSystemLibrary("gtk+-3.0");
+    // exe.linkSystemLibrary("webkit2gtk-4.1");
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
