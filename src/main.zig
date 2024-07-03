@@ -1,11 +1,16 @@
+// WebKit 6 reference: https://webkitgtk.org/reference/webkitgtk/2.45.4/
+// Gtk    4 reference: https://docs.gtk.org/gtk4
+
 const std = @import("std");
 const gtk = @cImport({
     @cInclude("gtk/gtk.h");
-    // @cInclude("webkit2/webkit2.h");
     @cInclude("webkit/webkit.h");
 });
 
-fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
+// https://www.joshwcomeau.com/css/custom-css-reset/
+const CSS_RESET = "<style type=\"text/css\">*,::after,::before{box-sizing:border-box}*{margin:0}body{line-height:1.5;-webkit-font-smoothing:antialiased}canvas,img,picture,svg,video{display:block;max-width:100%}button,input,select,textarea{font:inherit}h1,h2,h3,h4,h5,h6,p{overflow-wrap:break-word}#__next,#root{isolation:isolate}</style>";
+
+fn onActivate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
     _ = data;
     std.debug.print("on_activate\n", .{});
 
@@ -17,6 +22,9 @@ fn on_activate(app: *gtk.GtkApplication, data: gtk.gpointer) callconv(.C) void {
     const html =
         \\<!DOCTYPE html>
         \\  <html>
+        \\    <head>
+        ++ CSS_RESET ++
+        \\    </head>
         \\    <body style="width: 100vw; height: 100vh;">
         \\      <h1>Hello, World!</h1>
         \\    </body>
@@ -49,7 +57,7 @@ pub fn main() !void {
     defer gtk.g_object_unref(app);
 
     // https://docs.gtk.org/gobject/func.signal_connect_data.html
-    _ = gtk.g_signal_connect_data(app, "activate", @ptrCast(&on_activate), null, null, gtk.G_CONNECT_DEFAULT);
+    _ = gtk.g_signal_connect_data(app, "activate", @ptrCast(&onActivate), null, null, gtk.G_CONNECT_DEFAULT);
 
     // When you close the window, by (for example) pressing the X button,
     // the g_application_run() call returns with a number which is saved inside
