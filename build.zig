@@ -29,6 +29,21 @@ pub fn build(b: *std.Build) void {
     // running `zig build`).
     b.installArtifact(lib);
 
+    // I need to compile app to WASM and import it in webkit
+    // A good example can be found here: https://github.com/oltdaniel/zig-wasm-example/blob/68a84cc089767d728b72502ddddb966ea5af4efd/build.zig
+    const wasm = b.addExecutable(.{
+        .name = "zui-example",
+        .root_source_file = b.path("app/main.zig"),
+        .target = b.resolveTargetQuery(.{ .cpu_arch = .wasm32, .os_tag = .freestanding }),
+        .optimize = .ReleaseSmall,
+    });
+
+    // Compile options for browser target
+    wasm.entry = .disabled;
+    wasm.rdynamic = true; // expose exported functions
+
+    b.getInstallStep().dependOn(&b.addInstallFile(wasm.getEmittedBin(), "../www/main.wasm").step);
+
     const exe = b.addExecutable(.{
         .name = "zui",
         .root_source_file = b.path("src/main.zig"),
