@@ -31,6 +31,7 @@ pub fn build(b: *std.Build) void {
 
     // I need to compile app to WASM and import it in webkit
     // A good example can be found here: https://github.com/oltdaniel/zig-wasm-example/blob/68a84cc089767d728b72502ddddb966ea5af4efd/build.zig
+    // Also: https://codeberg.org/andrewrk/player/src/commit/3e84496958dd75654cec915c4f6feddf30e772b7/build.zig
     const wasm = b.addExecutable(.{
         .name = "zui-example",
         .root_source_file = b.path("app/main.zig"),

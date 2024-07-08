@@ -9,6 +9,9 @@
         WebAssembly.instantiateStreaming(fetch("./main.wasm"), {}).then(
             (wasm) => {
                 console.log(wasm);
+                console.log(wasm.instance.exports);
+                const { add } = wasm.instance.exports;
+                console.log(add(2,3));
             }
         );
     </script>
