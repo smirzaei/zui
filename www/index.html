@@ -6,12 +6,35 @@
   </head>
   <body>
     <script>
-        WebAssembly.instantiateStreaming(fetch("./main.wasm"), {}).then(
+        let wasmMem;
+        const importObj = {
+            js: {
+                log(msgPtr) {
+                    console.log(msgPtr);
+                    const msgBuf = new Uint8Array(wasmMem.buffer, msgPtr);
+                    let msg = "";
+                    let pos = 0;
+                    while(msgBuf[pos] !== 0) {
+                        msg += String.fromCharCode(msgBuf[pos]);
+                        pos++;
+                    }
+
+                    console.log(msg);
+                }
+            }
+        };
+
+        // https://developer.mozilla.org/en-US/docs/WebAssembly/JavaScript_interface/instantiateStreaming_static
+        WebAssembly.instantiateStreaming(fetch("./main.wasm"), importObj).then(
             (wasm) => {
                 console.log(wasm);
                 console.log(wasm.instance.exports);
-                const { add } = wasm.instance.exports;
+                const { memory, add, greet } = wasm.instance.exports;
+                wasmMem = memory;
+
                 console.log(add(2,3));
+
+               greet();
             }
         );
     </script>
